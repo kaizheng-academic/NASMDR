@@ -2,7 +2,7 @@
 
 import autokeras as ak
 from numpy import *
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold,train_test_split
 from sklearn.metrics import roc_curve, auc, accuracy_score, precision_score, recall_score, f1_score
 import numpy as np
 import  csv
@@ -76,13 +76,11 @@ def train(SampleFeature,Ncv):
     num=0
     result=[]
     for train, test in cv.split(SampleFeature, SampleLabel):
-
-        x_train=SampleFeature[train]
+        x_train, x_val, y_train, y_val = train_test_split(SampleFeature[train], SampleLabel[train], test_size=0.2)
         x_test = SampleFeature[test]
-        y_train=SampleLabel[train]
         y_test=SampleLabel[test]
         clf = ak.StructuredDataClassifier()
-        clf.fit(x_train, y_train,verbose=0)
+        clf.fit(x_train, y_train,validation_data=(x_val, y_val),verbose=0)
         best_model = clf.tuner.get_best_model()
         path = "best_"+str(num) +"_model"
         best_model.save(path, save_format="tf")
